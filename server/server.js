@@ -13,6 +13,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('Welcome to your server!!');
 });
+
+//Server connection
 const PORT = process.env.PORT || 4000; 
 
 app.listen(PORT, () => {
