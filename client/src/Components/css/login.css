@@ -1,46 +1,46 @@
 /* /client/css/login.css */
 
 .entry {
-    background-color: #f3f4f6;
+  background-color: #f3f4f6;
 }
 
-.login-card, .signUp-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; 
-    height: 100vh; 
-    background-color: #d8b4fe;
+.login-card,
+.signUp-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #d8b4fe;
 }
 
 .btn {
-    background-color: #7e22ce;
-    border: none;
-    color: white; /* Text color */
-    padding: 10px 20px; /* Padding for the button */
-    cursor: pointer; /* Show pointer cursor on hover */
+  background-color: #7e22ce;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
 }
 
 .btn:hover {
-    background-color: #a855f7;
+  background-color: #a855f7;
 }
 
 a {
-    color: #7e22ce; /* Use the default text color */
-    text-decoration: none; /* Remove underline */
-  }
-  
-  a:hover {
-    color: #3c1062; /* Use the default text color on hover */
-  }
-  
-  .signup-link {
-    color: #7e22ce; /* Purple color */
-    text-decoration: underline; /* Underline the text */
-    cursor: pointer; /* Show pointer cursor on hover */
-  }
-  
-  .signup-link:hover {
-    color: #3f0b70; /* Purple hover color */
-  }
-  
+  color: #7e22ce;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #3c1062;
+}
+
+.signup-link {
+  color: #7e22ce;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.signup-link:hover {
+  color: #3f0b70;
+}

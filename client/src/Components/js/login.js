@@ -22,12 +22,13 @@ function Login() {
     <div className="entry">
       {showLogin && (
         <div className="login-card">
+           <h2 className="mb-5">Heya! Catch up the latest gossips here.</h2>
           <div className="login-container">
             <Card>
               <Card.Body>
                 <h3>Login</h3>
                 <Form.Text>Enter your credential to Sign in.</Form.Text>
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Group className="mt-3 mb-3" controlId="formBasicEmail">
                   <Form.Control type="email" placeholder="Email" />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -70,10 +71,13 @@ function Login() {
                 <h3>Sign Up</h3>
                 <Form.Text>Enter your details to create a new user.</Form.Text>
                 <Form.Group
-                  className="mb-3 mt-2"
+                  className="mb-3 mt-3"
                   controlId="formBasicSignupName"
                 >
                   <Form.Control type="text" placeholder="Username" />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicSignupEmail">
+                  <Form.Control type="text" placeholder="Phone No." />
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formBasicSignupEmail">
                   <Form.Control type="email" placeholder="Email" />
