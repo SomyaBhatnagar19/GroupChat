@@ -3,6 +3,11 @@
 const bcrypt = require('bcrypt');
 const User = require('../model/userModel');
 const { Op } = require('sequelize');
+const jwt = require('jsonwebtoken');
+
+const generateAccessToken = (id, email) => {
+    return jwt.sign({ userId: id, email: email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+};
 
 const postUserSignUp = async (req, res, next) => {
   try {
@@ -34,29 +39,34 @@ const postUserSignUp = async (req, res, next) => {
 };
 
 const postUserLogin = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ message: "User doesn't exist!" });
+    try {
+      const { email, password } = req.body;
+  
+      const user = await User.findOne({ where: { email } });
+  
+      if (!user) {
+        return res.status(404).json({ message: "User doesn't exist!" });
+      }
+  
+      const passwordMatch = await bcrypt.compare(password, user.password);
+  
+      if (!passwordMatch) {
+        return res.status(401).json({ message: 'Incorrect password!' });
+      }
+  
+      const token = generateAccessToken(user.id, user.email);
+      console.log('JWT token:', token);
+  
+      res.status(200).json({ message: 'Login successful!', userId: user.id, token });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch) {
-      return res.status(401).json({ message: 'Incorrect password!' });
-    }
-
-    res.status(200).json({ message: 'Login successful!', userId: user.id });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+  };
+  
 
 module.exports = {
+  generateAccessToken,
   postUserSignUp,
   postUserLogin,
 };
