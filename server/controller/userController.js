@@ -11,7 +11,7 @@ const generateAccessToken = (id, email) => {
 
 const postUserSignUp = async (req, res, next) => {
   try {
-    const { name, email, number, password } = req.body;
+    const { name, number, email, password } = req.body;
 
     const existingUser = await User.findOne({
       where: {
@@ -26,8 +26,8 @@ const postUserSignUp = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
       name,
-      email,
       number,
+      email,
       password: hashedPassword,
     });
 
