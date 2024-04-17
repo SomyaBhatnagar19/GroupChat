@@ -64,7 +64,7 @@ const handleSignup = async (e) => {
     if (response.status === 409) {
       alert(data.message); // User already exists
     } else if (response.ok) {
-      alert("User created Successfully!!");
+      alert("User created, signup Successfull!!");
       console.log(data);
       setNumber("");
       setName("");
