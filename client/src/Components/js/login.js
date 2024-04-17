@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Form, Button, Card } from "react-bootstrap";
 import "../css/login.css";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [showSignup, setShowSignup] = useState(false);
@@ -11,6 +12,8 @@ function Login() {
   const [password, setPassword] = useState("");
   const [number, setNumber] = useState("");
   const [name, setName] = useState("");
+
+  const navigate = useNavigate();
 
   const toggleSignup = () => {
     setShowSignup(true);
@@ -42,6 +45,7 @@ const handleLogin = async (e) => {
       console.log(data);
       setEmail("");
       setPassword("");
+      navigate('/ChatWindow');
     } else {
       console.error("Login failed:", data.message);
     }

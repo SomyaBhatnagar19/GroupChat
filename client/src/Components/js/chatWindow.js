@@ -4,7 +4,7 @@ import React from 'react'
 
 const ChatWindow = () => {
   return (
-    <div>chatWindow</div>
+    <div id='ChatWindow'>chatWindow</div>
   )
 }
 
