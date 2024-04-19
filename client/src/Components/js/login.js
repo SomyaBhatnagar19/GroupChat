@@ -45,6 +45,7 @@ const handleLogin = async (e) => {
       console.log(data);
       setEmail("");
       setPassword("");
+      
       navigate('/ChatWindow');
     } else {
       console.error("Login failed:", data.message);
