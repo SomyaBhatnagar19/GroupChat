@@ -26,6 +26,7 @@ const Chat = () => {
     }
   };
 
+  //Making it realtime
   useEffect(() => {
     fetchMessages();
     const interval = setInterval(() => {
@@ -33,6 +34,22 @@ const Chat = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Read messages from local storage on component mount
+    const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    setMessages(storedMessages);
+  }, []);
+
+  useEffect(() => {
+    // Save messages to local storage whenever messages state changes
+    let storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    storedMessages.push(...messages);
+    if (storedMessages.length >= 10) {
+      storedMessages = storedMessages.slice(-10); // Keeping only the most recent 10 messages
+    }
+    localStorage.setItem("chatMessages", JSON.stringify(storedMessages));
+  }, [messages]);
 
   async function messageSend(e) {
     e.preventDefault();
@@ -51,8 +68,6 @@ const Chat = () => {
       console.log("Error sending message:", error);
     }
   }
-
-  // console.log("Messages:", messages);
 
   return (
     <>
@@ -101,4 +116,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
