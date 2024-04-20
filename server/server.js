@@ -22,11 +22,20 @@ app.use(bodyParser.json());
 
 // Router
 const userRouter = require('./routes/userRouter');
+const chatRouter = require('./routes/chatRouter');
 app.use('/', userRouter);
+app.use('/chat', chatRouter);
 
 // app.get('/', (req, res) => {
 //     res.send('Welcome to your server!!');
 // });
+
+//Model
+const User = require('./model/userModel');
+const Chat = require('./model/chatModel');
+//Assosiations
+User.hasMany(Chat, { onDelete: "CASCADE", hooks: true });
+Chat.belongsTo(User);
 
 // Sync Sequelize models with the database
 sequelize.sync()

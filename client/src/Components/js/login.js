@@ -43,6 +43,7 @@ const handleLogin = async (e) => {
     } else if (response.ok) {
       alert('Login Successful!!');
       console.log(data);
+      localStorage.setItem('token', data.token);
       setEmail("");
       setPassword("");
       

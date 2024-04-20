@@ -1,12 +1,17 @@
 /* /server/middleware/auth.js */
 
+// middleware/auth.js
+require('dotenv').config();
 const jwt = require("jsonwebtoken");
 const User = require("../model/userModel");
 
 const authenticate = (req, res, next) => {
   try {
     const token = req.header("Authorization");
-    const user = jwt.verify(token, process.env.JWT_SECRET);
+    const user = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
     User.findByPk(user.userId).then((user) => {
       req.user = user;
       next();
