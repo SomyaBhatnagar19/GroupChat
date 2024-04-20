@@ -62,7 +62,9 @@
   }
   
   .timestamp {
-    font-size: 0.8em; 
+    font-size: 0.7rem; 
+    font-style: italic;
+    align-items: start;
   }
   
   .message-form {
