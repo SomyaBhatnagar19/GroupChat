@@ -62,6 +62,7 @@ const Chat = () => {
                 message.userId === 1 ? "sent" : "received"
               }`}
             >
+              <p className="username">{message.name}</p>
               <p>{message.message}</p>
               <small className="timestamp">
                 {new Date(message.createdAt).toLocaleTimeString("en-GB", {

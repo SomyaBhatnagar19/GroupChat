@@ -61,6 +61,11 @@
     border-right-color: #f1f1f1;
   }
   
+  .username {
+    font-weight: bold;
+    align-items: start;
+  }
+
   .timestamp {
     font-size: 0.7rem; 
     font-style: italic;
