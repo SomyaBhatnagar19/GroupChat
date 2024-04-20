@@ -10,27 +10,32 @@ const Chat = () => {
   const [messageText, setMessageText] = useState("");
   const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    async function fetchMessages() {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:4000/chat/getMessages", {
-          headers: { Authorization: token },
-        });
-        if (Array.isArray(res.data.messages)) {
-          setMessages(res.data.messages);
-        } else {
-          console.log("Invalid messages format:", res.data);
-        }
-      } catch (error) {
-        console.log("Error fetching messages:", error);
+  const fetchMessages = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:4000/chat/getMessages", {
+        headers: { Authorization: token },
+      });
+      if (Array.isArray(res.data.messages)) {
+        setMessages(res.data.messages);
+      } else {
+        console.log("Invalid messages format:", res.data);
       }
+    } catch (error) {
+      console.log("Error fetching messages:", error);
     }
+  };
 
+  useEffect(() => {
     fetchMessages();
+    const interval = setInterval(() => {
+      fetchMessages();
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  async function messageSend() {
+  async function messageSend(e) {
+    e.preventDefault();
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
@@ -96,3 +101,4 @@ const Chat = () => {
 };
 
 export default Chat;
+
