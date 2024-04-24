@@ -1,0 +1,48 @@
+/* group.css */
+
+.group-modal .modal-body {
+  padding: 20px;
+  background-color: #b599f6;
+}
+
+.group-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.group-header {
+  background-color: #716197;
+  color: aliceblue;
+}
+
+.group-modal .form-label {
+  font-weight: bold;
+  margin-top: 0.8rem;
+}
+
+.group-modal .image-preview {
+  margin-top: 10px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.group-modal .image-preview img {
+  max-width: 100%;
+  height: auto;
+}
+
+.grp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  width: 100%;
+  background-color: #370d99;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.grp-btn:hover {
+  background-color: #471bae;
+}

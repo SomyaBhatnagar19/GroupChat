@@ -1,6 +1,6 @@
 /* /client/Components/js/ChatWindow.js */
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Container,
   Row,
@@ -15,6 +15,7 @@ import chatAppBg from "../assets/chatAppBg.png";
 import Header from "./header";
 import "../css/chatWindow.css";
 import Chat from "./chat";
+import Group from "./group";
 
 const users = [
   { id: 1, name: "Alice", active: true },
@@ -23,6 +24,22 @@ const users = [
 ];
 
 const ChatWindow = () => {
+  const [showGroupModal, setShowGroupModal] = useState(false);
+
+  const handleShowGroupModal = () => {
+    setShowGroupModal(true);
+  };
+
+  const handleCloseGroupModal = () => {
+    setShowGroupModal(false);
+  };
+
+  const handleGroupFormSubmit = (groupData) => {
+    // Handle group form submission (e.g., send data to server)
+    console.log(groupData);
+    setShowGroupModal(false);
+  };
+
   return (
     <>
       <Header />
@@ -30,6 +47,10 @@ const ChatWindow = () => {
         <Row className="h-100">
           <Col xs={3} className="bg-custom-blue d-flex flex-column">
             <Stack direction="vertical" gap={1}>
+            <Button onClick={handleShowGroupModal}>Create Group</Button>
+            <hr />
+            {/* Render Group modal */}
+            <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
               {users.map((user) => (
                 <div
                   key={user.id}

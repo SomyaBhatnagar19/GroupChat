@@ -12,19 +12,32 @@ const Chat = () => {
 
   const fetchMessages = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:4000/chat/getMessages", {
-        headers: { Authorization: token },
-      });
-      if (Array.isArray(res.data.messages)) {
-        setMessages(res.data.messages);
-      } else {
-        console.log("Invalid messages format:", res.data);
-      }
+        const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:4000/chat/getMessages", {
+            headers: { Authorization: token },
+        });
+        if (Array.isArray(res.data.messages)) {
+            const userIds = res.data.messages.map(message => message.userId);
+            
+            //functionality to fetch username from user id from user table through chat table
+            const userDetailsPromises = userIds.map(async userId => {
+                const userDetailsRes = await axios.get(`http://localhost:4000/${userId}`);
+                return userDetailsRes.data.user.name;
+            });
+            const userNames = await Promise.all(userDetailsPromises);
+
+            const updatedMessages = res.data.messages.map((message, index) => ({
+                ...message,
+                userName: userNames[index],
+            }));
+            setMessages(updatedMessages);
+        } else {
+            console.log("Invalid messages format:", res.data);
+        }
     } catch (error) {
-      console.log("Error fetching messages:", error);
+        console.log("Error fetching messages:", error);
     }
-  };
+};
 
   //Making it realtime
   useEffect(() => {
@@ -82,7 +95,7 @@ const Chat = () => {
                 message.userId === 1 ? "sent" : "received"
               }`}
             >
-              <p className="username">{message.name}</p>
+              <p className="username">{message.userName}</p>
               <p>{message.message}</p>
               <small className="timestamp">
                 {new Date(message.createdAt).toLocaleTimeString("en-GB", {
