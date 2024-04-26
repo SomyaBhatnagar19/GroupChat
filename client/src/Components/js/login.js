@@ -44,6 +44,7 @@ const handleLogin = async (e) => {
       alert('Login Successful!!');
       console.log(data);
       localStorage.setItem('token', data.token);
+      localStorage.setItem('userResData', JSON.stringify(data.user));
       setEmail("");
       setPassword("");
       

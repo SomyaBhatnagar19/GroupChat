@@ -1,30 +1,39 @@
 /* /client/Components/js/ChatWindow.js */
 
-import React, { useState } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  ListGroup,
-  Form,
-  Button,
-  Stack,
-} from "react-bootstrap";
-import { FaPaperPlane } from "react-icons/fa";
-import chatAppBg from "../assets/chatAppBg.png";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Button, Stack } from "react-bootstrap";
 import Header from "./header";
 import "../css/chatWindow.css";
 import Chat from "./chat";
 import Group from "./group";
-
-const users = [
-  { id: 1, name: "Alice", active: true },
-  { id: 2, name: "Bob", active: false },
-  { id: 3, name: "Charlie", active: true },
-];
+import { fetchAllUsers } from "../store/userStore";
+import { useSelector, useDispatch } from "react-redux";
 
 const ChatWindow = () => {
   const [showGroupModal, setShowGroupModal] = useState(false);
+  const [groups, setGroups] = useState([]);
+
+  const dispatch = useDispatch();
+
+  const allUsers = useSelector((state) => state.userCreation.allUsers);
+
+  useEffect(() => {
+    // const fetchGroups = async () => {
+    //   try {
+    //     const response = await fetch("http://localhost:4000/group/getAllGroups");
+    //     if (!response.ok) {
+    //       throw new Error("Failed to fetch groups");
+    //     }
+    //     const data = await response.json();
+    //     setGroups(data.groups);
+    //   } catch (error) {
+    //     console.error("Error fetching groups:", error.message);
+    //   }
+    // };
+    // fetchGroups();
+
+    dispatch(fetchAllUsers());
+  }, []);
 
   const handleShowGroupModal = () => {
     setShowGroupModal(true);
@@ -46,17 +55,16 @@ const ChatWindow = () => {
       <Container fluid className="chat-window-container">
         <Row className="h-100">
           <Col xs={3} className="bg-custom-blue d-flex flex-column">
-            <Stack direction="vertical" gap={1}>
-            <Button onClick={handleShowGroupModal}>Create Group</Button>
-            <hr />
-            {/* Render Group modal */}
-            <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
-              {users.map((user) => (
+            {/* <Stack direction="vertical" gap={1}>
+              <Button onClick={handleShowGroupModal}>Create Group</Button>
+              <hr />
+             
+              <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
+              {groups.map((group) => (
                 <div
-                  key={user.id}
-                  className={`user ${user.active ? "active" : ""}`}
+                  key={group.id}
+                  className="group"
                   style={{
-                    backgroundColor: user.active ? "#c4b5fd" : "transparent",
                     cursor: "pointer",
                     transition: "background-color 0.3s",
                     padding: "0.5rem",
@@ -64,8 +72,30 @@ const ChatWindow = () => {
                     position: "relative",
                   }}
                 >
-                  {user.name}
-                  {user.active && <span className="green-dot"></span>}
+                  {group.groupName}
+                </div>
+              ))}
+            </Stack> */}
+
+            <Stack direction="vertical" gap={1}>
+           
+              <Button onClick={handleShowGroupModal}>Create Group</Button>
+              <hr />
+             
+              <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
+              {allUsers.map((users) => (
+                <div
+                  key={users.id}
+                  className="group"
+                  style={{
+                    cursor: "pointer",
+                    transition: "background-color 0.3s",
+                    padding: "0.5rem",
+                    border: "solid #5b21b6 1px",
+                    position: "relative",
+                  }}
+                >
+                  {users.name}
                 </div>
               ))}
             </Stack>

@@ -57,7 +57,7 @@ const postUserLogin = async (req, res, next) => {
       const token = generateAccessToken(user.id, user.email);
       console.log('JWT token:', token);
   
-      res.status(200).json({ message: 'Login successful!', userId: user.id, token });
+      res.status(200).json({ message: 'Login successful!', user: user, token: token });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal server error' });

@@ -1,28 +1,43 @@
 /* /client/Components/js/group.js */
 
-import React, { useState } from "react";
-import { Modal, Form, Button, Image } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Modal, Form, Button } from "react-bootstrap";
+import {toggleMembersSelection, toggleAdminSelection, setGroupName, createGroup } from '../store/groupStore';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllUsers } from "../store/userStore";
+
 import '../css/group.css';
 
-const Group = ({ show, onHide, onSubmit }) => {
-  const [image, setImage] = useState(null);
+const Group = ({ show, onHide }) => {
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
+  const dispatch = useDispatch();
+  const allUsers = useSelector((state) => state.userCreation.allUsers);
+  const selectedMembers = useSelector((state) => state.groupStoreCreation.selectedMembers);
+  const selectedAdmins = useSelector((state) => state.groupStoreCreation.selectedAdmins);
+  const groupName = useSelector((state) => state.groupStoreCreation.groupName);
+
+  useEffect(() => {
+    dispatch(fetchAllUsers());
+  }, [dispatch]);
+
+  const handleMemberCheckboxChange = (userId) => {
+    dispatch(toggleMembersSelection(userId));
+  };
+
+  const handleAdminRadioChange = (userId) => {
+    dispatch(toggleAdminSelection(userId));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    formData.append("image", image);
+   
     const groupData = {
-      name: formData.get("groupName"),
-      adminName: formData.get("adminName"),
-      image: formData.get("image"),
-    };
-    onSubmit(groupData);
-  };
+      groupName: groupName,
+      admins: selectedAdmins,
+      members: selectedMembers
+    } 
+    dispatch(createGroup(groupData));
+ };
 
   return (
     <Modal show={show} onHide={onHide} className="group-modal">
@@ -33,24 +48,34 @@ const Group = ({ show, onHide, onSubmit }) => {
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="groupName">
             <Form.Label className="form-label">Group Name</Form.Label>
-            <Form.Control type="text" name="groupName" required />
+            <Form.Control type="text" onChange={(e) => dispatch(setGroupName(e.target.value))} required />
           </Form.Group>
-          <Form.Group controlId="image">
-            <Form.Label className="form-label">Group Image</Form.Label>
-            <Form.Control type="file" name="image" onChange={handleImageChange} accept="image/*" />
+          <Form.Group controlId="adminId">
+            <Form.Label className="form-label">Admin</Form.Label>
+            {allUsers.map((user) => (
+              <Form.Check
+                key={user.id}
+                type="radio"
+                label={user.name}
+                name="adminId"
+                value={user.id}
+                checked={selectedAdmins.includes(user.id)}
+                onChange={() => handleAdminRadioChange(user.id)}
+              />
+            ))}
           </Form.Group>
-          {image && (
-            <div className="image-preview">
-              <Image src={URL.createObjectURL(image)} alt="Group Image" fluid />
-            </div>
-          )}
-          <Form.Group controlId="adminName">
-            <Form.Label className="form-label">Admin Name</Form.Label>
-            <Form.Control type="text" name="adminName" required />
-          </Form.Group>
-          <Form.Group controlId="members">
-            <Form.Label className="form-label">Add Members</Form.Label>
-            <Form.Control type="text" name="members" required />
+          <Form.Group controlId="memberIds">
+            <Form.Label className="form-label">Members</Form.Label>
+            {allUsers.map((user) => (
+              <Form.Check
+                key={user.id}
+                type="checkbox"
+                label={user.name}
+                value={user.id}
+                checked={selectedMembers.includes(user.id)}
+                onChange={() => handleMemberCheckboxChange(user.id)}
+              />
+            ))}
           </Form.Group>
           <Button variant="primary" type="submit" className="grp-btn">
             Create Group

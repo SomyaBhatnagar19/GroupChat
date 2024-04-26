@@ -1,4 +1,6 @@
 import React from 'react';
+import store from './Components/store/index';
+import {Provider} from 'react-redux';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
@@ -9,7 +11,9 @@ import "bootstrap/dist/js/bootstrap.bundle"
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+   <Provider store={store}>
     <App />
+   </Provider>
   </React.StrictMode>
 );
 

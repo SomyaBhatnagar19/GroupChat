@@ -2,44 +2,45 @@
 
 const Groups = require("../model/groupModel");
 const Users = require("../model/userModel");
+const intermediateUserGroupConnectModel = require('../model/intermediateUserGroupConnectModel');
 
 // function to make group
 const makeGroup = async (req, res) => {
-  const { name, admins, members } = req.body.groupData;
+  const { groupName, admins, members } = req.body.groupData;
+
+
+  console.log(req.body.groupData);
+  if (!groupName || !admins || !members) {
+    return res.status(400).json({ message: "Invalid request body" });
+  }
 
   try {
-    const newGroup = await Groups.create({ name });
+    const newGroup = await Groups.create({ groupName });
+
+
+     let v1, v2;
 
     for (let i = 0; i < admins.length; i++) {
-      const existingAssociation = await UserGroup.findOne({
-        where: { userId: admins[i], groupId: newGroup.id },
+      v1 = await intermediateUserGroupConnectModel.create({
+        userId: admins[i],
+        groupId: newGroup.id,
+        isAdmin: true,
       });
-      if (!existingAssociation) {
-        await UserGroup.create({
-          userId: admins[i],
-          groupId: newGroup.id,
-          isAdmin: true,
-        });
-      }
     }
-
+    console.log(v1)
     for (let j = 0; j < members.length; j++) {
-      const existingAssociation = await UserGroup.findOne({
-        where: { userId: members[j], groupId: newGroup.id },
+      v2 = await intermediateUserGroupConnectModel.create({
+        userId: members[j],
+        groupId: newGroup.id,
+        isAdmin: false,
       });
-      if (!existingAssociation) {
-        await UserGroup.create({
-          userId: members[j],
-          groupId: newGroup.id,
-          isAdmin: false,
-        });
-      }
     }
+    console.log(v2)
 
     res.status(201).json({ message: "Group created successfully" });
   } catch (err) {
     console.log("Error creating group:", err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: err });
   }
 };
 

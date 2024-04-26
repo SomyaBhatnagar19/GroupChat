@@ -42,10 +42,10 @@ const Chat = () => {
   //Making it realtime
   useEffect(() => {
     fetchMessages();
-    const interval = setInterval(() => {
-      fetchMessages();
-    }, 1000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(() => {
+    //   fetchMessages();
+    // }, 1000);
+    // return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
