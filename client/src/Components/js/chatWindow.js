@@ -7,6 +7,7 @@ import "../css/chatWindow.css";
 import Chat from "./chat";
 import Group from "./group";
 import { fetchAllUsers } from "../store/userStore";
+import { getAllGroups, toggleGroup } from "../store/groupStore";
 import { useSelector, useDispatch } from "react-redux";
 
 const ChatWindow = () => {
@@ -16,6 +17,10 @@ const ChatWindow = () => {
   const dispatch = useDispatch();
 
   const allUsers = useSelector((state) => state.userCreation.allUsers);
+
+  const allGroups = useSelector((state) => state.groupStoreCreation.allGroups);
+
+  const selectedGroups = useSelector((state) => state.groupStoreCreation.selectedGroups);
 
   useEffect(() => {
     // const fetchGroups = async () => {
@@ -33,6 +38,7 @@ const ChatWindow = () => {
     // fetchGroups();
 
     dispatch(fetchAllUsers());
+    dispatch(getAllGroups());
   }, []);
 
   const handleShowGroupModal = () => {
@@ -83,6 +89,24 @@ const ChatWindow = () => {
               <hr />
              
               <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
+              <h5 className="heading-sub">Groups</h5>
+              {allGroups.map((groups) => (
+                <div
+                  key={groups.id}
+                  className="group"
+                  onClick={() => dispatch(toggleGroup(groups))}
+                  style={{
+                    cursor: "pointer",
+                    transition: "background-color 0.3s",
+                    padding: "0.5rem",
+                    border: "solid #5b21b6 1px",
+                    position: "relative",
+                  }}
+                >
+                  {groups.groupName}
+                </div>
+              ))}
+              <h5 className="heading-sub mt-3">Friends</h5>
               {allUsers.map((users) => (
                 <div
                   key={users.id}

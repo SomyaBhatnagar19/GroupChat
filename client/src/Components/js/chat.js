@@ -5,6 +5,8 @@ import { Form, Button } from "react-bootstrap";
 import { FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import "../css/chat.css";
+import { fetchMessages} from '../store/groupStore';
+import {useSelector, useDispatch} from 'react-redux';
 
 const Chat = () => {
   const [messageText, setMessageText] = useState("");
@@ -69,7 +71,7 @@ const Chat = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "http://localhost:4000/chat/sendMessage",
+        "http://localhost:4000/chat/sendGroupChatMessage/${groupId}",
         {
           message: messageText,
         },

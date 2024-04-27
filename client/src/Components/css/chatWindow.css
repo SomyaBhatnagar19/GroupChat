@@ -17,3 +17,10 @@
 .bg-custom-purple {
   background-color: #c4b5fd; 
 }
+
+.heading-sub {
+  color: rgb(9, 58, 28);
+  text-align: center;
+  background-color: #a493cc;
+  padding: 0.2rem;
+}

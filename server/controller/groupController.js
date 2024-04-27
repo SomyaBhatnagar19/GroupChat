@@ -3,6 +3,8 @@
 const Groups = require("../model/groupModel");
 const Users = require("../model/userModel");
 const intermediateUserGroupConnectModel = require('../model/intermediateUserGroupConnectModel');
+const { Sequelize } = require('sequelize');
+
 
 // function to make group
 const makeGroup = async (req, res) => {
@@ -47,7 +49,19 @@ const makeGroup = async (req, res) => {
 //function to fetch all the users
 const getAllGroups = async (req, res) => {
   try {
-    const groups = await Groups.findAll();
+    const { userId } = req.params;
+
+    const data = await intermediateUserGroupConnectModel.findAll({ where: { userId: userId } });
+
+    const groupIds = data.map((item) => item.groupId);
+
+    const groups = await Groups.findAll({
+      where: {
+        id: {
+          [Sequelize.Op.in]: groupIds,
+        },
+      },
+    });
 
     return res.status(200).json({ groups: groups });
   } catch (err) {
@@ -58,6 +72,8 @@ const getAllGroups = async (req, res) => {
       .json({ message: "Unable to find groups", errMsg: err });
   }
 };
+
+
 
 // function to fetch users
 const getAllUsers = async (req, res) => {
