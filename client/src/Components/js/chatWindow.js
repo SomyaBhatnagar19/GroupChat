@@ -9,34 +9,18 @@ import Group from "./group";
 import { fetchAllUsers } from "../store/userStore";
 import { getAllGroups, toggleGroup } from "../store/groupStore";
 import { useSelector, useDispatch } from "react-redux";
+import GroupChat from "./groupChat";
 
 const ChatWindow = () => {
   const [showGroupModal, setShowGroupModal] = useState(false);
-  const [groups, setGroups] = useState([]);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
   const dispatch = useDispatch();
 
   const allUsers = useSelector((state) => state.userCreation.allUsers);
-
   const allGroups = useSelector((state) => state.groupStoreCreation.allGroups);
 
-  const selectedGroups = useSelector((state) => state.groupStoreCreation.selectedGroups);
-
   useEffect(() => {
-    // const fetchGroups = async () => {
-    //   try {
-    //     const response = await fetch("http://localhost:4000/group/getAllGroups");
-    //     if (!response.ok) {
-    //       throw new Error("Failed to fetch groups");
-    //     }
-    //     const data = await response.json();
-    //     setGroups(data.groups);
-    //   } catch (error) {
-    //     console.error("Error fetching groups:", error.message);
-    //   }
-    // };
-    // fetchGroups();
-
     dispatch(fetchAllUsers());
     dispatch(getAllGroups());
   }, []);
@@ -50,9 +34,12 @@ const ChatWindow = () => {
   };
 
   const handleGroupFormSubmit = (groupData) => {
-    // Handle group form submission (e.g., send data to server)
     console.log(groupData);
     setShowGroupModal(false);
+  };
+
+  const handleGroupClick = (groupId) => {
+    setSelectedGroupId(groupId);
   };
 
   return (
@@ -61,15 +48,23 @@ const ChatWindow = () => {
       <Container fluid className="chat-window-container">
         <Row className="h-100">
           <Col xs={3} className="bg-custom-blue d-flex flex-column">
-            {/* <Stack direction="vertical" gap={1}>
+            <Stack direction="vertical" gap={1}>
               <Button onClick={handleShowGroupModal}>Create Group</Button>
               <hr />
-             
-              <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
-              {groups.map((group) => (
+              <Group
+                show={showGroupModal}
+                onHide={handleCloseGroupModal}
+                onSubmit={handleGroupFormSubmit}
+              />
+              <h5 className="heading-sub">Groups</h5>
+              {allGroups.map((group) => (
                 <div
                   key={group.id}
                   className="group"
+                  onClick={() => {
+                    dispatch(toggleGroup(group));
+                    handleGroupClick(group.id);
+                  }}
                   style={{
                     cursor: "pointer",
                     transition: "background-color 0.3s",
@@ -81,35 +76,10 @@ const ChatWindow = () => {
                   {group.groupName}
                 </div>
               ))}
-            </Stack> */}
-
-            <Stack direction="vertical" gap={1}>
-           
-              <Button onClick={handleShowGroupModal}>Create Group</Button>
-              <hr />
-             
-              <Group show={showGroupModal} onHide={handleCloseGroupModal} onSubmit={handleGroupFormSubmit} />
-              <h5 className="heading-sub">Groups</h5>
-              {allGroups.map((groups) => (
-                <div
-                  key={groups.id}
-                  className="group"
-                  onClick={() => dispatch(toggleGroup(groups))}
-                  style={{
-                    cursor: "pointer",
-                    transition: "background-color 0.3s",
-                    padding: "0.5rem",
-                    border: "solid #5b21b6 1px",
-                    position: "relative",
-                  }}
-                >
-                  {groups.groupName}
-                </div>
-              ))}
               <h5 className="heading-sub mt-3">Friends</h5>
-              {allUsers.map((users) => (
+              {allUsers.map((user) => (
                 <div
-                  key={users.id}
+                  key={user.id}
                   className="group"
                   style={{
                     cursor: "pointer",
@@ -119,13 +89,13 @@ const ChatWindow = () => {
                     position: "relative",
                   }}
                 >
-                  {users.name}
+                  {user.name}
                 </div>
               ))}
             </Stack>
           </Col>
           <Col xs={9} className="bg-custom-purple d-flex flex-column">
-            <Chat />
+            {selectedGroupId ? <GroupChat groupId={selectedGroupId} /> : <Chat />}
           </Col>
         </Row>
       </Container>

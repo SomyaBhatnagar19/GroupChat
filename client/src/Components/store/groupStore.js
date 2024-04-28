@@ -83,7 +83,7 @@ export const getAllGroups = () => async (dispatch) => {
 export const fetchMessages = () => async (dispatch) => {
   try {
     const token = localStorage.getItem("token");
-    const group =JSON.parse(localStorage.getItem("group"));
+    const group = JSON.parse(localStorage.getItem("group"));
     const groupId = group.id;
     const user = JSON.parse(localStorage.getItem("userResData"));
     const userId = user.id;
@@ -93,18 +93,23 @@ export const fetchMessages = () => async (dispatch) => {
     });
 
     if (Array.isArray(res.data.messages)) {
-      const userIds = res.data.messages.map(message => message.userId);
+      const userIds = res.data.messages.map((message) => message.userId);
 
-      const userDetailsPromises = userIds.map(async userId => {
-        const userDetailsRes = await axios.get(`http://localhost:4000/user/${userId}`);
-        return userDetailsRes.data.user.name;
+      const userDetailsPromises = userIds.map(async (userId) => {
+        try {
+          const userDetailsRes = await axios.get(`http://localhost:4000/user/${userId}`);
+          return userDetailsRes.data.user.name;
+        } catch (error) {
+          console.log(`Error fetching user details for user ID ${userId}:`, error);
+          return null; // Return null if user details fetch fails
+        }
       });
 
       const userNames = await Promise.all(userDetailsPromises);
 
       const updatedMessages = res.data.messages.map((message, index) => ({
         ...message,
-        userName: userNames[index],
+        userName: userNames[index] || "Unknown User", // Use "Unknown User" if user details not found
       }));
 
       dispatch(setMessages(updatedMessages));
@@ -116,6 +121,24 @@ export const fetchMessages = () => async (dispatch) => {
   }
 };
 
+export const sendGroupChatMessages = (groupId, message) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `http://localhost:4000/chat/sendGroupChatMessage/${groupId}`,
+      {
+        groupId: groupId,
+        message: message,
+      },
+      {
+        headers: { Authorization: token },
+      }
+    );
+    dispatch(fetchMessages(groupId)); 
+  } catch (error) {
+    console.log("Error sending message:", error);
+  }
+};
 
 export const {
   toggleMembersSelection,
