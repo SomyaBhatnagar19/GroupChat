@@ -22,6 +22,17 @@ exports.sendMessage = async (req, res, next) => {
   }
 };
 
+//fetching msgs for normal chat
+exports.getMessages = async (req, res, next) => {
+  try {
+    const messages = await Chat.findAll();
+    console.log('Messages get: ', messages);
+    return res.status(200).json({ messages: messages });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 //sending msgs for group chat
 exports.sendGroupChatMessage = async (req, res, next) => {
   try {
@@ -44,16 +55,6 @@ exports.sendGroupChatMessage = async (req, res, next) => {
   }
 };
 
-//fetching msgs for normal chat
-exports.getMessages = async (req, res, next) => {
-  try {
-    const messages = await Chat.findAll();
-    console.log('Messages get: ', messages);
-    return res.status(200).json({ messages: messages });
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 //sending msgs for group chat
 exports.getGroupChatMessages = async (req, res, next) => {

@@ -2,8 +2,8 @@
 
 const sequelize = require("../util/database");
 const Sequelize = require("sequelize");
-const Users = require('./userModel');
-const Groups = require('./groupModel');
+const Users = require("./userModel");
+const Groups = require("./groupModel");
 
 const Chat = sequelize.define("chats", {
   id: {
@@ -19,6 +19,15 @@ const Chat = sequelize.define("chats", {
   },
   message: {
     type: Sequelize.STRING,
+  },
+  userName: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  type: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    defaultValue: "text",
   },
 });
 

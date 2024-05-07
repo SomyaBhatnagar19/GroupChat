@@ -1,12 +1,12 @@
 /* /client/Components/js/Chat.js */
 
 import React, { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Dropdown, DropdownButton  } from "react-bootstrap";
 import { FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import "../css/chat.css";
-import { fetchMessages} from '../store/groupStore';
-import {useSelector, useDispatch} from 'react-redux';
+import { fetchMessages } from "../store/groupStore";
+import { useSelector, useDispatch } from "react-redux";
 
 const Chat = () => {
   const [messageText, setMessageText] = useState("");
@@ -14,32 +14,34 @@ const Chat = () => {
 
   const fetchMessages = async () => {
     try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:4000/chat/getMessages", {
-            headers: { Authorization: token },
-        });
-        if (Array.isArray(res.data.messages)) {
-            const userIds = res.data.messages.map(message => message.userId);
-            
-            //functionality to fetch username from user id from user table through chat table
-            const userDetailsPromises = userIds.map(async userId => {
-                const userDetailsRes = await axios.get(`http://localhost:4000/${userId}`);
-                return userDetailsRes.data.user.name;
-            });
-            const userNames = await Promise.all(userDetailsPromises);
+      const token = localStorage.getItem("token");
+      const res = await axios.get("http://localhost:4000/chat/getMessages", {
+        headers: { Authorization: token },
+      });
+      if (Array.isArray(res.data.messages)) {
+        const userIds = res.data.messages.map((message) => message.userId);
 
-            const updatedMessages = res.data.messages.map((message, index) => ({
-                ...message,
-                userName: userNames[index],
-            }));
-            setMessages(updatedMessages);
-        } else {
-            console.log("Invalid messages format:", res.data);
-        }
+        //functionality to fetch username from user id from user table through chat table
+        const userDetailsPromises = userIds.map(async (userId) => {
+          const userDetailsRes = await axios.get(
+            `http://localhost:4000/${userId}`
+          );
+          return userDetailsRes.data.user.name;
+        });
+        const userNames = await Promise.all(userDetailsPromises);
+
+        const updatedMessages = res.data.messages.map((message, index) => ({
+          ...message,
+          userName: userNames[index],
+        }));
+        setMessages(updatedMessages);
+      } else {
+        console.log("Invalid messages format:", res.data);
+      }
     } catch (error) {
-        console.log("Error fetching messages:", error);
+      console.log("Error fetching messages:", error);
     }
-};
+  };
 
   //Making it realtime
   useEffect(() => {
@@ -52,7 +54,8 @@ const Chat = () => {
 
   useEffect(() => {
     // Read messages from local storage on component mount
-    const storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    const storedMessages =
+      JSON.parse(localStorage.getItem("chatMessages")) || [];
     setMessages(storedMessages);
   }, []);
 
@@ -66,12 +69,34 @@ const Chat = () => {
     localStorage.setItem("chatMessages", JSON.stringify(storedMessages));
   }, [messages]);
 
+  // async function messageSend(e) {
+  //   e.preventDefault();
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const res = await axios.post(
+  //       "http://localhost:4000/chat/sendGroupChatMessage/${groupId}",
+  //       {
+  //         message: messageText,
+  //       },
+  //       { headers: { Authorization: token } }
+  //     );
+  //     setMessageText("");
+  //     // You may want to update messages state here if needed
+  //   } catch (error) {
+  //     console.log("Error sending message:", error);
+  //   }
+  // }
+
   async function messageSend(e) {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
+      const group = JSON.parse(localStorage.getItem("group"));
+      // console.log("Group:", group);
+      const groupId = group.id;
+      console.log(groupId);
       const res = await axios.post(
-        "http://localhost:4000/chat/sendGroupChatMessage/${groupId}",
+        `http://localhost:4000/chat/sendGroupChatMessage/${groupId}`,
         {
           message: messageText,
         },
@@ -87,6 +112,7 @@ const Chat = () => {
   return (
     <>
       <div className="chat-header">Group Chat</div>
+      
       <hr style={{ marginBottom: "1rem", marginTop: "0" }} />
       <div className="flex-grow-1 overflow-auto messages">
         {messages &&

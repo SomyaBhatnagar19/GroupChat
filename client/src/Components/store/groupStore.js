@@ -9,6 +9,8 @@ const initialState = {
   allGroups: [],
   selectedGroups: null,
   messages: [],
+  allNewMembers: [],
+  allNewAdmins : [],
 };
 
 const groupSlice = createSlice({
@@ -38,9 +40,15 @@ const groupSlice = createSlice({
     },
     toggleGroup: (state, action) => {
       state.selectedGroups = action.payload;
-      console.log('toggleGroups:' ,action.payload);
+      console.log("toggleGroups:", action.payload);
       localStorage.setItem("group", JSON.stringify(action.payload));
-    }
+    },
+    setAllNewMembers: (state, action) => {
+      state.allNewMembers = action.payload;
+    },
+    setAllNewAdmins : (state,action) => {
+      state.allNewAdmins  = action.payload
+    },
   },
 });
 
@@ -88,19 +96,27 @@ export const fetchMessages = () => async (dispatch) => {
     const user = JSON.parse(localStorage.getItem("userResData"));
     const userId = user.id;
 
-    const res = await axios.get(`http://localhost:4000/chat/getGroupChatMessages?groupId=${groupId}&userId=${userId}`, {
-      headers: { Authorization: token },
-    });
+    const res = await axios.get(
+      `http://localhost:4000/chat/getGroupChatMessages?groupId=${groupId}&userId=${userId}`,
+      {
+        headers: { Authorization: token },
+      }
+    );
 
     if (Array.isArray(res.data.messages)) {
       const userIds = res.data.messages.map((message) => message.userId);
 
       const userDetailsPromises = userIds.map(async (userId) => {
         try {
-          const userDetailsRes = await axios.get(`http://localhost:4000/user/${userId}`);
+          const userDetailsRes = await axios.get(
+            `http://localhost:4000/user/${userId}`
+          );
           return userDetailsRes.data.user.name;
         } catch (error) {
-          console.log(`Error fetching user details for user ID ${userId}:`, error);
+          console.log(
+            `Error fetching user details for user ID ${userId}:`,
+            error
+          );
           return null; // Return null if user details fetch fails
         }
       });
@@ -109,7 +125,7 @@ export const fetchMessages = () => async (dispatch) => {
 
       const updatedMessages = res.data.messages.map((message, index) => ({
         ...message,
-        userName: userNames[index] || "Unknown User", // Use "Unknown User" if user details not found
+        userName: userNames[index] || "Unknown User",
       }));
 
       dispatch(setMessages(updatedMessages));
@@ -134,11 +150,120 @@ export const sendGroupChatMessages = (groupId, message) => async (dispatch) => {
         headers: { Authorization: token },
       }
     );
-    dispatch(fetchMessages(groupId)); 
+    dispatch(fetchMessages(groupId));
   } catch (error) {
     console.log("Error sending message:", error);
   }
 };
+
+export const addUserToGroup = (groupId, userId) => async (dispatch) => {
+  try {
+    await axios.post("http://localhost:4000/group/addUserToGroup", {
+      groupId,
+      userId,
+    });
+    dispatch(fetchMessages(groupId));
+  } catch (error) {
+    console.error("Error adding user to group:", error);
+  }
+};
+
+export const makeMemberAdmin = (groupId, userId) => async (dispatch) => {
+  try {
+    await axios.put("http://localhost:4000/group/makeMemberAdmin", {
+      groupId,
+      userId,
+    });
+    dispatch(fetchMessages(groupId)); // Fetch updated messages after making member admin
+  } catch (error) {
+    console.error("Error making member admin:", error);
+  }
+};
+
+export const removeUserFromGroup = (groupId, userId) => async (dispatch) => {
+  try {
+    await axios.delete(
+      `http://localhost:4000/group/removeUserFromGroup/${groupId}/${userId}`
+    );
+    dispatch(fetchMessages(groupId)); // Fetch updated messages after removing user
+  } catch (error) {
+    console.error("Error removing user from group:", error);
+  }
+};
+
+export const getAllNewMembersToAdd = () => async (dispatch) => {
+  try {
+    const group = JSON.parse(localStorage.getItem("group"));
+
+    const groupId = group.id;
+
+    const response = await axios.get(
+      `http://localhost:4000/connection/getAllNewMembers/${groupId}`
+    );
+
+    // console.log("Res from the getAllNewMembersToAdd fn : ",response.data);
+
+    dispatch(setAllNewMembers(response.data.newMembersToAdd));
+  } catch (err) {
+    console.log("Err occured while fetching new members : ", err);
+  }
+};
+
+export const getAllNewAdminsToAdd = () => async (dispatch, getState) => {
+  try {
+    const group = JSON.parse(localStorage.getItem("group"));
+
+    const groupId = group.id;
+
+    const response = await axios.get(
+      `http://localhost:4000/connection/getAllAdminsToAdd/${groupId}`
+    );
+
+    const arr1 = response.data.newAdminsToAdd;
+
+    console.log("Arr1 is : ", arr1);
+
+    const arr2 = getState().groupStoreCreation.allNewMembers;
+
+    console.log("Arr2 is : ", arr2);
+
+    const arr = [...arr1, ...arr2];
+
+    console.log("arr is :", arr);
+
+    dispatch(setAllNewAdmins(arr));
+
+  } catch (err) {}
+};
+
+export const addNewMembersToTheGroup = (newMembersData) => async (dispatch) => {
+
+  try {
+  
+    
+    const user = JSON.stringify(localStorage.getItem("user"));
+  
+    const token = user.token;
+  
+    const headers = {
+  
+        "Content-Type" : "application/json",
+        Authorization : token,
+    }
+  
+    const response = await axios.post("http://localhost:4000/connection/addNewUsersToUserGroups",{newMembersData},{headers});
+  
+    console.log("Group created successfully : ", response.data);
+  
+  
+  } catch (err) {
+      
+    console.log(err);
+    console.log("Error creating group : ",err);
+  
+  }
+  
+  }
 
 export const {
   toggleMembersSelection,
@@ -148,6 +273,8 @@ export const {
   setMessages,
   selectedGroups,
   toggleGroup,
+  setAllNewMembers,
+  setAllNewAdmins,
 } = groupSlice.actions;
 
 export default groupSlice.reducer;

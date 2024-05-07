@@ -1,17 +1,25 @@
 /* /client/Components/js/groupChat.js */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import axios from "axios";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Dropdown, Stack, ListGroup } from "react-bootstrap";
 import { FaPaperPlane } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMessages, sendGroupChatMessages } from "../store/groupStore";
+import { fetchMessages, sendGroupChatMessages, makeMemberAdmin, removeUserFromGroup, addUserToGroup } from "../store/groupStore";
+import { FaEllipsisV } from "react-icons/fa";
+import AddMembersToGroup from "./addMembersToGroup";
 
 const GroupChat = ({ groupId }) => {
+  const[showModal, setShowModal] = useState(false);
     const [newMessage, setNewMessage] = useState(""); // Define newMessage state
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [addMemberBtnClicked, setAddMemberBtnClicked] = useState(false);
+
     const dispatch = useDispatch();
     const user = JSON.parse(localStorage.getItem("userResData"));
     const userId = user.id;
+    
+    const groupName = JSON.parse(localStorage.getItem("group")).groupName;
   
     // Use selector to get messages from Redux store
     const messages = useSelector((state) => state.groupStoreCreation.messages);
@@ -37,10 +45,59 @@ const GroupChat = ({ groupId }) => {
     }, [dispatch, groupId, userId]);
   
     console.log("Messages:", messages); // Log messages to console for debugging
-  
+ 
+  //   const handleAction = (action) => {
+  //     // Handle the selected action here
+  //     console.log("Action selected:", action);
+  // };
+
+  // const handleAddUser = () => {
+  //   if (selectedUser) {
+  //     dispatch(addUserToGroup(groupId, selectedUser));
+  //   }
+  // };
+
+  // const handleMakeAdmin = () => {
+  //   if (selectedUser) {
+  //     dispatch(makeMemberAdmin(groupId, selectedUser));
+  //   }
+  // };
+
+  // const handleRemoveUser = () => {
+  //   if (selectedUser) {
+  //     dispatch(removeUserFromGroup(groupId, selectedUser));
+  //   }
+  // };
+  const showModalHandler = () => {
+    setShowModal(!showModal);
+  }
+
+
+  const addMemberHandler = () => {
+    setShowModal(!showModal);
+  }
+
+  const removeMemberHandler = () => {
+      }
+
     return (
       <>
-        <div className="chat-header">Group Chat</div>
+        
+        <div className="d-flex justify-content-between align-items-center">
+                <div className="chat-header">{groupName}</div>
+                {/* Right-aligned dropdown for actions */}
+              <Stack direction="horizontal" gap={2}>
+              {showModal && <AddMembersToGroup show={showModal} handleClose={showModalHandler}/> }
+              <ListGroup>
+            <ListGroup.Item action onClick={addMemberHandler}>
+                Add User ➕/ Make Admin 👑
+            </ListGroup.Item>
+            <ListGroup.Item action onClick={removeMemberHandler}>
+                Remove User ➖
+            </ListGroup.Item>
+        </ListGroup>
+              </Stack>
+            </div>
         <hr style={{ marginBottom: "1rem", marginTop: "0" }} />
         <div className="flex-grow-1 overflow-auto messages">
           {messages &&
@@ -48,7 +105,7 @@ const GroupChat = ({ groupId }) => {
               <div
                 key={index}
                 className={`message ${
-                  message.userId === userId ? "sent" : "received" // Check if message is sent by current user
+                  message.userId === userId ? "sent" : "received" 
                 }`}
               >
                 <p className="username">{message.userName}</p>

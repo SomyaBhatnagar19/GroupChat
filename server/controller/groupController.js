@@ -12,6 +12,7 @@ const makeGroup = async (req, res) => {
 
 
   console.log(req.body.groupData);
+  
   if (!groupName || !admins || !members) {
     return res.status(400).json({ message: "Invalid request body" });
   }
@@ -23,21 +24,22 @@ const makeGroup = async (req, res) => {
      let v1, v2;
 
     for (let i = 0; i < admins.length; i++) {
-      v1 = await intermediateUserGroupConnectModel.create({
-        userId: admins[i],
-        groupId: newGroup.id,
-        isAdmin: true,
-      });
+      const existingAssociation = await intermediateUserGroupConnectModel.findOne({
+        where: { userId: admins[i], groupId: newGroup.id }
+    });
+    if (!existingAssociation) {
+        await intermediateUserGroupConnectModel.create({ userId: admins[i], groupId: newGroup.id, isAdmin: true });
     }
-    console.log(v1)
+    }
+ 
     for (let j = 0; j < members.length; j++) {
-      v2 = await intermediateUserGroupConnectModel.create({
-        userId: members[j],
-        groupId: newGroup.id,
-        isAdmin: false,
-      });
+      const existingAssociation = await intermediateUserGroupConnectModel.findOne({
+        where: { userId: members[j], groupId: newGroup.id }
+    });
+    if (!existingAssociation) {
+        await intermediateUserGroupConnectModel.create({ userId: members[j], groupId: newGroup.id, isAdmin: false });
     }
-    console.log(v2)
+    }
 
     res.status(201).json({ message: "Group created successfully" });
   } catch (err) {
@@ -86,4 +88,64 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-module.exports = { makeGroup, getAllGroups, getAllUsers };
+// Function to add a user to a group
+const addUserToGroup = async (req, res) => {
+  const { groupId, userId } = req.body;
+
+  try {
+    const group = await Groups.findByPk(groupId); // Check if group exists
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    await intermediateUserGroupConnectModel.create({
+      userId: userId,
+      groupId: groupId,
+      isAdmin: false, // Set isAdmin to false by default
+    });
+
+    res.status(200).json({ message: "User added to group successfully" });
+  } catch (err) {
+    console.log("Error adding user to group:", err);
+    res.status(500).json({ message: "Internal server error", error: err });
+  }
+};
+
+
+
+// // Function to make a member an admin
+// const makeMemberAdmin = async (req, res) => {
+//   const { groupId, userId } = req.body;
+
+//   try {
+//     await intermediateUserGroupConnectModel.update(
+//       { isAdmin: true },
+//       { where: { groupId: groupId, userId: userId } }
+//     );
+
+//     res.status(200).json({ message: "Member designated as admin successfully" });
+//   } catch (err) {
+//     console.log("Error making member admin:", err);
+//     res.status(500).json({ message: "Internal server error", error: err });
+//   }
+// };
+
+// // Function to remove a user from a group
+// const removeUserFromGroup = async (req, res) => {
+//   const { groupId, userId } = req.body;
+
+//   try {
+//     await intermediateUserGroupConnectModel.destroy({
+//       where: { groupId: groupId, userId: userId }
+//     });
+
+//     res.status(200).json({ message: "User removed from group successfully" });
+//   } catch (err) {
+//     console.log("Error removing user from group:", err);
+//     res.status(500).json({ message: "Internal server error", error: err });
+//   }
+// };
+
+// module.exports = { makeGroup, getAllGroups, getAllUsers, addUserToGroup, makeMemberAdmin, removeUserFromGroup };
+module.exports = { makeGroup, getAllGroups, getAllUsers, addUserToGroup };

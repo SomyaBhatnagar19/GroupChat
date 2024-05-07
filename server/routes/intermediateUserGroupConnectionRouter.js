@@ -14,5 +14,9 @@ router.post(
   "/addNewUsersToUserGroups",
   IntermediateUserGroupConnectController.addNewUsersToGroup
 );
+router.get(
+  "/getAllNewMembers/:groupId",
+  IntermediateUserGroupConnectController.getAllNewMembers
+);
 
 module.exports = router;

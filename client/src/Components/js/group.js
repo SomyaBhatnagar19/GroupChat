@@ -10,6 +10,8 @@ import '../css/group.css';
 
 const Group = ({ show, onHide }) => {
 
+  const [showGroupModal, setShowGroupModal] = useState(false);
+
   const dispatch = useDispatch();
   const allUsers = useSelector((state) => state.userCreation.allUsers);
   const selectedMembers = useSelector((state) => state.groupStoreCreation.selectedMembers);
@@ -37,6 +39,7 @@ const Group = ({ show, onHide }) => {
       members: selectedMembers
     } 
     dispatch(createGroup(groupData));
+    onHide();
  };
 
   return (
