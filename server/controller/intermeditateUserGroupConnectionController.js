@@ -132,12 +132,12 @@ const getAllAdminsToAdd = async (req, res) => {
 
 const addNewUsersToUserGroups = async (req, res) => {
   try {
-    const { admins, members, groupId } = req.body.newMembersData;
+    const { members, groupId } = req.body.newMembersData;
 
     // Check if the users already exist in the group
     const existingUsers = await UserGroups.findAll({
       where: {
-        userId: { [Op.in]: [...admins, ...members] },
+        userId: { [Op.in]: members },
         groupId: groupId,
       },
     });
@@ -146,18 +146,6 @@ const addNewUsersToUserGroups = async (req, res) => {
     await Promise.all(
       existingUsers.map(async (user) => {
         await user.destroy();
-      })
-    );
-
-    // Add admins to user groups with isAdmin true
-    await Promise.all(
-      admins.map(async (adminId) => {
-        const existingAdmin = await UserGroups.findOne({
-          where: { userId: adminId, groupId: groupId }
-        });
-        if (!existingAdmin) {
-          await UserGroups.create({ userId: adminId, isAdmin: true, groupId });
-        }
       })
     );
 
@@ -181,6 +169,44 @@ const addNewUsersToUserGroups = async (req, res) => {
 };
 
 
+const addNewAdminToUserGroups = async (req, res) => {
+  try {
+    const { admins, groupId } = req.body.newMembersData;
+
+    // Check if the users already exist in the group
+    const existingUsers = await UserGroups.findAll({
+      where: {
+        userId: { [Op.in]: admins },
+        groupId: groupId,
+      },
+    });
+
+    // Delete existing entries for the users in the group
+    await Promise.all(
+      existingUsers.map(async (user) => {
+        await user.destroy();
+      })
+    );
+
+    // Add admins to user groups with isAdmin true
+    await Promise.all(
+      admins.map(async (adminId) => {
+        const existingAdmin = await UserGroups.findOne({
+          where: { userId: adminId, groupId: groupId }
+        });
+        if (!existingAdmin) {
+          await UserGroups.create({ userId: adminId, isAdmin: true, groupId });
+        }
+      })
+    );
+
+    res.status(200).json({ message: "New users added to user groups successfully." });
+  } catch (err) {
+    console.log("Error adding new users to user groups:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 module.exports = {
   getMembers,
@@ -189,4 +215,5 @@ module.exports = {
   addNewUsersToGroup,
   getAllNewMembers,
   addNewUsersToUserGroups,
+  addNewAdminToUserGroups,
 };

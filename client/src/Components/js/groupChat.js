@@ -8,9 +8,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMessages, sendGroupChatMessages, makeMemberAdmin, removeUserFromGroup, addUserToGroup } from "../store/groupStore";
 import { FaEllipsisV } from "react-icons/fa";
 import AddMembersToGroup from "./addMembersToGroup";
+import AddAdminToGroup from "./addAdminToGroup";
 
 const GroupChat = ({ groupId }) => {
-  const[showModal, setShowModal] = useState(false);
+  const[showModalMember, setShowModalMember] = useState(false);
+  const[showModalAdmin, setShowModalAdmin] = useState(false);
+  const[showModalRemove, setShowModalRemove] = useState(false);
     const [newMessage, setNewMessage] = useState(""); // Define newMessage state
     const [selectedUser, setSelectedUser] = useState(null);
     const [addMemberBtnClicked, setAddMemberBtnClicked] = useState(false);
@@ -19,8 +22,12 @@ const GroupChat = ({ groupId }) => {
     const user = JSON.parse(localStorage.getItem("userResData"));
     const userId = user.id;
     
-    const groupName = JSON.parse(localStorage.getItem("group")).groupName;
-  
+    const groupData = JSON.parse(localStorage.getItem('group'));
+    const groupName = groupData && groupData.groupName ? groupData.groupName : '';
+    
+    
+    
+    
     // Use selector to get messages from Redux store
     const messages = useSelector((state) => state.groupStoreCreation.messages);
   
@@ -68,16 +75,22 @@ const GroupChat = ({ groupId }) => {
   //     dispatch(removeUserFromGroup(groupId, selectedUser));
   //   }
   // };
-  const showModalHandler = () => {
-    setShowModal(!showModal);
-  }
+  // const showModalHandler = () => {
+  //   setShowModal(!showModal);
+  // }
 
 
   const addMemberHandler = () => {
-    setShowModal(!showModal);
-  }
+    setShowModalMember(!showModalMember);
+};
+
+const addAdminHandler = () => {
+    setShowModalAdmin(!showModalAdmin);
+};
+
 
   const removeMemberHandler = () => {
+    setShowModalRemove(!showModalRemove);
       }
 
     return (
@@ -87,10 +100,14 @@ const GroupChat = ({ groupId }) => {
                 <div className="chat-header">{groupName}</div>
                 {/* Right-aligned dropdown for actions */}
               <Stack direction="horizontal" gap={2}>
-              {showModal && <AddMembersToGroup show={showModal} handleClose={showModalHandler}/> }
+              {showModalMember && <AddMembersToGroup/> }
+              {showModalAdmin && <AddAdminToGroup/> }
               <ListGroup>
             <ListGroup.Item action onClick={addMemberHandler}>
-                Add User ➕/ Make Admin 👑
+                Add User ➕  
+            </ListGroup.Item>
+            <ListGroup.Item action onClick={addAdminHandler}>
+               Make Admin 👑 
             </ListGroup.Item>
             <ListGroup.Item action onClick={removeMemberHandler}>
                 Remove User ➖

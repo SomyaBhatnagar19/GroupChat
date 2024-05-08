@@ -5,10 +5,8 @@ import axios from "axios";
 const initialState = {
   groupName: "",
   selectedAdmins: [],
-  selectedMembers: [],
-  allGroups: [],
+  selectedMembers: JSON.parse(localStorage.getItem('userResData'))?.id ? [JSON.parse(localStorage.getItem('userResData')).id] : [],   allGroups: [],
   selectedGroups: null,
-  messages: [],
   allNewMembers: [],
   allNewAdmins : [],
 };
@@ -23,12 +21,14 @@ const groupSlice = createSlice({
         ? state.selectedMembers.filter((id) => id !== memberId)
         : [...state.selectedMembers, memberId];
     },
-    toggleAdminSelection: (state, action) => {
-      const memberId = action.payload;
-      state.selectedAdmins = state.selectedAdmins.includes(memberId)
-        ? state.selectedAdmins.filter((id) => id !== memberId)
-        : [...state.selectedAdmins, memberId];
-    },
+    setSelectedAdmins : (state,action) => {
+      state.selectedAdmins.push(action.payload);
+  },
+  deselectAdmin : (state,action) => {
+      state.selectedAdmins =  state.selectedAdmins.filter(
+          (adminId) => adminId !== action.payload
+      );
+  },
     setGroupName: (state, action) => {
       state.groupName = action.payload;
     },
@@ -60,6 +60,7 @@ export const createGroup = (groupData) => async (dispatch) => {
       Authorization: token,
     };
 
+    console.log('Group Data: ', groupData)
     const response = await axios.post(
       "http://localhost:4000/group/makeGroup",
       { groupData },
@@ -201,8 +202,6 @@ export const getAllNewMembersToAdd = () => async (dispatch) => {
       `http://localhost:4000/connection/getAllNewMembers/${groupId}`
     );
 
-    // console.log("Res from the getAllNewMembersToAdd fn : ",response.data);
-
     dispatch(setAllNewMembers(response.data.newMembersToAdd));
   } catch (err) {
     console.log("Err occured while fetching new members : ", err);
@@ -223,15 +222,15 @@ export const getAllNewAdminsToAdd = () => async (dispatch, getState) => {
 
     console.log("Arr1 is : ", arr1);
 
-    const arr2 = getState().groupStoreCreation.allNewMembers;
+    // const arr2 = getState().groupStoreCreation.allNewMembers;
 
-    console.log("Arr2 is : ", arr2);
+    // console.log("Arr2 is : ", arr2);
 
-    const arr = [...arr1, ...arr2];
+    // const arr = [...arr1, ...arr2];
 
-    console.log("arr is :", arr);
+    // console.log("arr is :", arr);
 
-    dispatch(setAllNewAdmins(arr));
+    dispatch(setAllNewAdmins(arr1));
 
   } catch (err) {}
 };
@@ -265,6 +264,35 @@ export const addNewMembersToTheGroup = (newMembersData) => async (dispatch) => {
   
   }
 
+  export const addNewAdminToTheGroup = (newMembersData) => async (dispatch) => {
+
+    try {
+    
+      
+      const user = JSON.stringify(localStorage.getItem("user"));
+    
+      const token = user.token;
+    
+      const headers = {
+    
+          "Content-Type" : "application/json",
+          Authorization : token,
+      }
+    
+      const response = await axios.post("http://localhost:4000/connection/addNewAdminToTheGroup",{newMembersData},{headers});
+    
+      console.log("Group created successfully : ", response.data);
+    
+    
+    } catch (err) {
+        
+      console.log(err);
+      console.log("Error creating group : ",err);
+    
+    }
+    
+    }
+
 export const {
   toggleMembersSelection,
   toggleAdminSelection,
@@ -275,6 +303,8 @@ export const {
   toggleGroup,
   setAllNewMembers,
   setAllNewAdmins,
+  setSelectedAdmins,
+  deselectAdmin,
 } = groupSlice.actions;
 
 export default groupSlice.reducer;

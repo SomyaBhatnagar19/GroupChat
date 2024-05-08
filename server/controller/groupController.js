@@ -8,43 +8,36 @@ const { Sequelize } = require('sequelize');
 
 // function to make group
 const makeGroup = async (req, res) => {
-  const { groupName, admins, members } = req.body.groupData;
-
-
-  console.log(req.body.groupData);
-  
-  if (!groupName || !admins || !members) {
-    return res.status(400).json({ message: "Invalid request body" });
-  }
+  const { name, admin, members } = req.body.groupData;
 
   try {
-    const newGroup = await Groups.create({ groupName });
+      // Include admin in the members array if not already present
+      if (!members.includes(admin)) {
+          members.push(admin);
+      }
 
+      // Create the group
+      const newGroup = await Groups.create({ name });
 
-     let v1, v2;
+      // Associate admins and members with the group
+      for (let i = 0; i < members.length; i++) {
+          const userId = members[i];
+          const isAdmin = userId === admin;
 
-    for (let i = 0; i < admins.length; i++) {
-      const existingAssociation = await intermediateUserGroupConnectModel.findOne({
-        where: { userId: admins[i], groupId: newGroup.id }
-    });
-    if (!existingAssociation) {
-        await intermediateUserGroupConnectModel.create({ userId: admins[i], groupId: newGroup.id, isAdmin: true });
-    }
-    }
- 
-    for (let j = 0; j < members.length; j++) {
-      const existingAssociation = await intermediateUserGroupConnectModel.findOne({
-        where: { userId: members[j], groupId: newGroup.id }
-    });
-    if (!existingAssociation) {
-        await intermediateUserGroupConnectModel.create({ userId: members[j], groupId: newGroup.id, isAdmin: false });
-    }
-    }
+          // Check if the association already exists
+          const existingAssociation = await UserGroup.findOne({
+              where: { userId, groupId: newGroup.id }
+          });
 
-    res.status(201).json({ message: "Group created successfully" });
+          if (!existingAssociation) {
+              await UserGroup.create({ userId, groupId: newGroup.id, isAdmin });
+          }
+      }
+
+      res.status(201).json({ message: 'Group created successfully' });
   } catch (err) {
-    console.log("Error creating group:", err);
-    res.status(500).json({ message: "Internal server error", error: err });
+      console.log('Error creating group:', err);
+      res.status(500).json({ message: 'Internal server error' });
   }
 };
 

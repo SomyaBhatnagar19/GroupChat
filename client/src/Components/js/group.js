@@ -16,8 +16,11 @@ const Group = ({ show, onHide }) => {
   const allUsers = useSelector((state) => state.userCreation.allUsers);
   const selectedMembers = useSelector((state) => state.groupStoreCreation.selectedMembers);
   const selectedAdmins = useSelector((state) => state.groupStoreCreation.selectedAdmins);
-  const groupName = useSelector((state) => state.groupStoreCreation.groupName);
+  // const groupName = useSelector((state) => state.groupStoreCreation.groupName);
 
+
+  const id = JSON.parse(localStorage.getItem("userResData")).id;
+  const groupName = JSON.parse(localStorage.getItem("group")).groupName;
   useEffect(() => {
     dispatch(fetchAllUsers());
   }, [dispatch]);
@@ -35,7 +38,7 @@ const Group = ({ show, onHide }) => {
    
     const groupData = {
       groupName: groupName,
-      admins: selectedAdmins,
+      admin: id,
       members: selectedMembers
     } 
     dispatch(createGroup(groupData));
@@ -53,7 +56,7 @@ const Group = ({ show, onHide }) => {
             <Form.Label className="form-label">Group Name</Form.Label>
             <Form.Control type="text" onChange={(e) => dispatch(setGroupName(e.target.value))} required />
           </Form.Group>
-          <Form.Group controlId="adminId">
+          {/* <Form.Group controlId="adminId">
             <Form.Label className="form-label">Admin</Form.Label>
             {allUsers.map((user) => (
               <Form.Check
@@ -66,10 +69,11 @@ const Group = ({ show, onHide }) => {
                 onChange={() => handleAdminRadioChange(user.id)}
               />
             ))}
-          </Form.Group>
+          </Form.Group> */}
           <Form.Group controlId="memberIds">
             <Form.Label className="form-label">Members</Form.Label>
             {allUsers.map((user) => (
+              user.id !== id && 
               <Form.Check
                 key={user.id}
                 type="checkbox"

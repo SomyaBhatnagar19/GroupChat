@@ -12,7 +12,11 @@ router.get(
 );
 router.post(
   "/addNewUsersToUserGroups",
-  IntermediateUserGroupConnectController.addNewUsersToGroup
+  IntermediateUserGroupConnectController.addNewUsersToUserGroups
+);
+router.post(
+  "/addNewAdminToTheGroup",
+  IntermediateUserGroupConnectController.addNewAdminToUserGroups
 );
 router.get(
   "/getAllNewMembers/:groupId",
