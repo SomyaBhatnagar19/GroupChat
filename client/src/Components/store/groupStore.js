@@ -81,6 +81,7 @@ export const createGroup = (groupData) => async (dispatch) => {
     );
 
     console.log("Group created successfully : ", response.data);
+    alert("Group created successfully!");
   } catch (err) {
     console.log("Error creating group : ", err);
   }
@@ -177,6 +178,7 @@ export const addUserToGroup = (groupId, userId) => async (dispatch) => {
       userId,
     });
     dispatch(fetchMessages(groupId));
+    alert("User added to group successfully!");
   } catch (error) {
     console.error("Error adding user to group:", error);
   }
@@ -189,6 +191,7 @@ export const makeMemberAdmin = (groupId, userId) => async (dispatch) => {
       userId,
     });
     dispatch(fetchMessages(groupId)); // Fetch updated messages after making member admin
+    alert("User has been made admin!");
   } catch (error) {
     console.error("Error making member admin:", error);
   }
@@ -200,6 +203,7 @@ export const removeUserFromGroup = (groupId, userId) => async (dispatch) => {
       `http://localhost:4000/group/removeUserFromGroup/${groupId}/${userId}`
     );
     dispatch(fetchMessages(groupId)); // Fetch updated messages after removing user
+    alert("User removed successfully!")
   } catch (error) {
     console.error("Error removing user from group:", error);
   }

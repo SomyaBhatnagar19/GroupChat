@@ -68,6 +68,7 @@ const AddAdminToGroup = () => {
   
         }
         console.log('Data to modify: ', newMembersData);
+        alert("User added to member list.")
         // handleClose();
         dispatch(addNewAdminToTheGroup(newMembersData));
         setShow(!show);

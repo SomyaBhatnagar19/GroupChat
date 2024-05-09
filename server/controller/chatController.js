@@ -61,65 +61,41 @@ const sendMessage = async (req, res, next) => {
 
 const sendFile = async (req, res) => {
   try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-      const user = await User.findByPk(req.user.id);
-      if (!user) {
-          return res.status(404).json({ message: "User not found" });
-      }
+    const file = req.file;
 
-   //console.log("req object : ",req.body,req.user.dataValues);
+    const fileName = new Date().toISOString() + file.originalname;
+    const mimeType = file.mimetype;
 
-      console.log("name is : ",req.user.name);
+    const fileData = file.buffer;
 
-      const file = req.file;
+    const data = await uploadToS3(fileData, fileName);
 
-      console.log("file is :",file);
+    let chatData = {
+      message: data.Location,
+      global: false,
+      userId: req.user.id,
+      groupId: req.body.groupId || null,
+      userName: req.user.name,
+      type: mimeType,
+    };
 
-      const fileName = new Date().toISOString() + file.originalname;
-      const mimeType = file.mimetype;
+    if (!req.body.groupId) {
+      chatData.global = true;
+    }
 
-      // Read the file data
-      //const fileData = fs.readFileSync(file.path);
-      const fileData = file.buffer;
+    const chat = await Chat.create(chatData);
 
-      const data = await uploadToS3(fileData, fileName); // Assuming uploadToS3 is defined elsewhere
-
-
-      if(req.body.groupId) {
-          const chats = await Chat.create({
-              message: data.Location,
-              global: false,
-              userId: req.user.id,
-              groupId : req.body.groupId,
-              userName: req.user.name,
-              type: mimeType,
-          });
-          
-         //fs.unlinkSync(file.path);
-
-          return res.status(200).json({ message: "success", chats: chats });
-      }
-      else{
-          const chats = await Chat.create({
-              message: data.Location,
-              global: true,
-              userId: req.user.id,
-              userName: req.user.name,
-              type: mimeType,
-          });
-
-          //fs.unlinkSync(file.path);
-
-          return res.status(200).json({ message: "success", chats: chats });
-      }
-
-
+    return res.status(200).json({ message: "success", chat: chat });
   } catch (err) {
-      console.log("Error occurred while inserting chat into db:", err);
-      return res.status(400).json({ message: "failure", errMsg: err });
+    console.log("Error occurred while inserting chat into db:", err);
+    return res.status(400).json({ message: "failure", errMsg: err });
   }
 };
-
 
 
 const sendGroupMessages = async (req, res, next) => {

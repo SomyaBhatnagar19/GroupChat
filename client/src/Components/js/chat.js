@@ -158,7 +158,7 @@ const Chat = () => {
 
   return (
     < >
-      <div className="chat-header">Common Group </div>
+      <div className="chat-header">Welcome to Wave. Create your own group & make a wave.</div>
       
       <hr style={{ marginBottom: "1rem", marginTop: "0" }} />
       <div style={{ maxHeight: "80vh", overflowY: "auto",scrollbarWidth:"none"}}>

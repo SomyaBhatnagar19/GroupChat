@@ -56,7 +56,7 @@ const ChatWindow = () => {
                 onHide={handleCloseGroupModal}
                 onSubmit={handleGroupFormSubmit}
               />
-              <h5 className="heading-sub">Specific Groups</h5>
+              <h5 className="heading-sub">Your Groups</h5>
               {allGroups.map((group) => (
                 <div
                   key={group.id}
@@ -76,7 +76,7 @@ const ChatWindow = () => {
                   {group.groupName}
                 </div>
               ))}
-              <h5 className="heading-sub mt-3">Friends</h5>
+              <h5 className="heading-sub mt-3">User List</h5>
               {allUsers.map((user) => (
                 <div
                   key={user.id}
