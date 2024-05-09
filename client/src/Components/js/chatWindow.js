@@ -46,7 +46,7 @@ const ChatWindow = () => {
     <>
       <Header />
       <Container fluid className="chat-window-container">
-        <Row className="h-100">
+        <Row className="h-100" >
           <Col xs={3} className="bg-custom-blue d-flex flex-column">
             <Stack direction="vertical" gap={1}>
               <Button onClick={handleShowGroupModal}>Create Group</Button>
@@ -56,7 +56,7 @@ const ChatWindow = () => {
                 onHide={handleCloseGroupModal}
                 onSubmit={handleGroupFormSubmit}
               />
-              <h5 className="heading-sub">Groups</h5>
+              <h5 className="heading-sub">Specific Groups</h5>
               {allGroups.map((group) => (
                 <div
                   key={group.id}

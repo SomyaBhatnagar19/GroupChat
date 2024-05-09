@@ -4,11 +4,14 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 const initialState = {
   groupName: "",
-  selectedAdmins: [],
-  selectedMembers: JSON.parse(localStorage.getItem('userResData'))?.id ? [JSON.parse(localStorage.getItem('userResData')).id] : [],   allGroups: [],
+  selectedAdmins: JSON.parse(localStorage.getItem('userResData'))?.id ? [JSON.parse(localStorage.getItem('userResData')).id] : [],
+  selectedMembers: [],
+  selectTheUsersFromGroup : [],
+  allGroups: [],
   selectedGroups: null,
   allNewMembers: [],
   allNewAdmins : [],
+  allTheUsersInGroup : [],
 };
 
 const groupSlice = createSlice({
@@ -20,6 +23,13 @@ const groupSlice = createSlice({
       state.selectedMembers = state.selectedMembers.includes(memberId)
         ? state.selectedMembers.filter((id) => id !== memberId)
         : [...state.selectedMembers, memberId];
+    },
+    toggleAllMemberSelectionInGroup : (state,action) => {
+
+      const memberId = action.payload;
+      state.selectTheUsersFromGroup = state.selectTheUsersFromGroup.includes(memberId) ? 
+      state.selectTheUsersFromGroup.filter((id)=>id !==memberId) : [...state.selectTheUsersFromGroup,memberId];
+
     },
     setSelectedAdmins : (state,action) => {
       state.selectedAdmins.push(action.payload);
@@ -48,6 +58,9 @@ const groupSlice = createSlice({
     },
     setAllNewAdmins : (state,action) => {
       state.allNewAdmins  = action.payload
+    },
+    setAllTheUsersInGroup : (state,action) => {
+      state.allTheUsersInGroup = action.payload
     },
   },
 });
@@ -293,6 +306,49 @@ export const addNewMembersToTheGroup = (newMembersData) => async (dispatch) => {
     
     }
 
+    export const getAllTheuSersInGroup = () => async (dispatch) => {
+
+      try {
+      
+        const group = JSON.parse(localStorage.getItem("group"));
+              
+        const groupId = group.id;
+      
+        const response = await axios.get(`http://localhost:4000/connection/getAllTheUsersInGroup/${groupId}`);
+      
+        dispatch(setAllTheUsersInGroup(response.data.allTheUsersInGroup));
+      
+      }
+      catch (err) {
+       console.log("Err occured while fetching allTheUsersInGroup : ",err);
+      }
+      
+      };
+
+      export const removeMembersFromTheGroup = (selectedUserDataFromGroup ) => async (dispatch) => {
+
+        try {
+        
+          const user = JSON.stringify(localStorage.getItem("user"));
+      
+          const token = user.token;
+      
+          const headers = {
+      
+              "Content-Type" : "application/json",
+              Authorization : token,
+          }
+      
+          const response = await axios.post("http://localhost:4000/connection/removeUserFromTheGroup",{selectedUserDataFromGroup},{headers});
+      
+          console.log("Removed Members Successfully : ", response.data);
+      
+        } catch(err) {
+           console.log("Failed to Remove Member from the Group ",err);
+        }
+      
+      }
+
 export const {
   toggleMembersSelection,
   toggleAdminSelection,
@@ -305,6 +361,8 @@ export const {
   setAllNewAdmins,
   setSelectedAdmins,
   deselectAdmin,
+  setAllTheUsersInGroup,
+  toggleAllMemberSelectionInGroup
 } = groupSlice.actions;
 
 export default groupSlice.reducer;

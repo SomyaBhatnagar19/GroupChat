@@ -2,13 +2,13 @@
 
 const Groups = require("../model/groupModel");
 const Users = require("../model/userModel");
-const intermediateUserGroupConnectModel = require('../model/intermediateUserGroupConnectModel');
+const UserGroup = require('../model/intermediateUserGroupConnectModel');
 const { Sequelize } = require('sequelize');
 
 
 // function to make group
 const makeGroup = async (req, res) => {
-  const { name, admin, members } = req.body.groupData;
+  const { groupName, admin, members } = req.body.groupData;
 
   try {
       // Include admin in the members array if not already present
@@ -17,7 +17,7 @@ const makeGroup = async (req, res) => {
       }
 
       // Create the group
-      const newGroup = await Groups.create({ name });
+      const newGroup = await Groups.create({ groupName });
 
       // Associate admins and members with the group
       for (let i = 0; i < members.length; i++) {
@@ -46,7 +46,7 @@ const getAllGroups = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const data = await intermediateUserGroupConnectModel.findAll({ where: { userId: userId } });
+    const data = await UserGroup.findAll({ where: { userId: userId } });
 
     const groupIds = data.map((item) => item.groupId);
 
@@ -107,38 +107,6 @@ const addUserToGroup = async (req, res) => {
 
 
 
-// // Function to make a member an admin
-// const makeMemberAdmin = async (req, res) => {
-//   const { groupId, userId } = req.body;
 
-//   try {
-//     await intermediateUserGroupConnectModel.update(
-//       { isAdmin: true },
-//       { where: { groupId: groupId, userId: userId } }
-//     );
 
-//     res.status(200).json({ message: "Member designated as admin successfully" });
-//   } catch (err) {
-//     console.log("Error making member admin:", err);
-//     res.status(500).json({ message: "Internal server error", error: err });
-//   }
-// };
-
-// // Function to remove a user from a group
-// const removeUserFromGroup = async (req, res) => {
-//   const { groupId, userId } = req.body;
-
-//   try {
-//     await intermediateUserGroupConnectModel.destroy({
-//       where: { groupId: groupId, userId: userId }
-//     });
-
-//     res.status(200).json({ message: "User removed from group successfully" });
-//   } catch (err) {
-//     console.log("Error removing user from group:", err);
-//     res.status(500).json({ message: "Internal server error", error: err });
-//   }
-// };
-
-// module.exports = { makeGroup, getAllGroups, getAllUsers, addUserToGroup, makeMemberAdmin, removeUserFromGroup };
-module.exports = { makeGroup, getAllGroups, getAllUsers, addUserToGroup };
+module.exports = { makeGroup, getAllGroups, getAllUsers, addUserToGroup};

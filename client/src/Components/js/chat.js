@@ -1,91 +1,77 @@
 /* /client/Components/js/Chat.js */
 
-import React, { useState, useEffect } from "react";
-import { Form, Button, Dropdown, DropdownButton  } from "react-bootstrap";
-import { FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Button, Form, Stack } from "react-bootstrap";
+import { FaPaperPlane } from "react-icons/fa";
+import { AiOutlinePaperClip } from "react-icons/ai";
 import "../css/chat.css";
-import { fetchMessages } from "../store/groupStore";
-import { useSelector, useDispatch } from "react-redux";
+import { socket } from "../js/socket";
 
 const Chat = () => {
   const [messageText, setMessageText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const fetchMessages = async () => {
+
+  
+  const handleToggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
+  
+  const mediaTypes = {
+    image: [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/bmp",
+      "image/svg+xml",
+    ],
+    video: ["video/mp4", "video/webm", "video/ogg"],
+    audio: ["audio/mpeg", "audio/ogg", "audio/wav"],
+  };
+
+  const getChat = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:4000/chat/getMessages", {
-        headers: { Authorization: token },
+      // Fetch messages from local storage
+      const storedMessages =
+        JSON.parse(localStorage.getItem("chatMessages")) || [];
+      setMessages(storedMessages);
+
+      // Fetch new messages from the backend
+      socket.emit("getMessage");
+
+      socket.on("messages", async (chats) => {
+        try {
+
+  
+          const limitedMessages = chats.slice(-10);
+
+          // Update state with the recent chats
+          setMessages(limitedMessages);
+
+          // console.log(limitedMessages);
+          // Save updated messages in local storage
+          localStorage.setItem("chatMessages", JSON.stringify(limitedMessages));
+        } catch (err) {
+          console.log(err);
+        }
       });
-      if (Array.isArray(res.data.messages)) {
-        const userIds = res.data.messages.map((message) => message.userId);
-
-        //functionality to fetch username from user id from user table through chat table
-        const userDetailsPromises = userIds.map(async (userId) => {
-          const userDetailsRes = await axios.get(
-            `http://localhost:4000/${userId}`
-          );
-          return userDetailsRes.data.user.name;
-        });
-        const userNames = await Promise.all(userDetailsPromises);
-
-        const updatedMessages = res.data.messages.map((message, index) => ({
-          ...message,
-          userName: userNames[index],
-        }));
-        setMessages(updatedMessages);
-      } else {
-        console.log("Invalid messages format:", res.data);
-      }
-    } catch (error) {
-      console.log("Error fetching messages:", error);
+    } catch (err) {
+      console.log("Error while fetching the chat:", err);
     }
   };
 
   //Making it realtime
   useEffect(() => {
-    fetchMessages();
+    getChat();
     // const interval = setInterval(() => {
     //   fetchMessages();
     // }, 1000);
     // return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    // Read messages from local storage on component mount
-    const storedMessages =
-      JSON.parse(localStorage.getItem("chatMessages")) || [];
-    setMessages(storedMessages);
-  }, []);
-
-  useEffect(() => {
-    // Save messages to local storage whenever messages state changes
-    let storedMessages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-    storedMessages.push(...messages);
-    if (storedMessages.length >= 10) {
-      storedMessages = storedMessages.slice(-10); // Keeping only the most recent 10 messages
-    }
-    localStorage.setItem("chatMessages", JSON.stringify(storedMessages));
-  }, [messages]);
-
-  // async function messageSend(e) {
-  //   e.preventDefault();
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const res = await axios.post(
-  //       "http://localhost:4000/chat/sendGroupChatMessage/${groupId}",
-  //       {
-  //         message: messageText,
-  //       },
-  //       { headers: { Authorization: token } }
-  //     );
-  //     setMessageText("");
-  //     // You may want to update messages state here if needed
-  //   } catch (error) {
-  //     console.log("Error sending message:", error);
-  //   }
-  // }
 
   async function messageSend(e) {
     e.preventDefault();
@@ -96,24 +82,86 @@ const Chat = () => {
       const groupId = group.id;
       console.log(groupId);
       const res = await axios.post(
-        `http://localhost:4000/chat/sendGroupChatMessage/${groupId}`,
+        `http://localhost:4000/chat/sendMessage`,
         {
           message: messageText,
         },
         { headers: { Authorization: token } }
       );
-      setMessageText("");
-      // You may want to update messages state here if needed
+
+      console.log("Message has been sent successfully!", res.data);
+
+        // Update local storage with the new message
+        const updatedMessages = [{ message: messageText }, ...messages];
+        if (updatedMessages.length > 10) {
+          updatedMessages.splice(0, updatedMessages.length - 10);
+        }
+        localStorage.setItem("chatMessages", JSON.stringify(updatedMessages));
+
+        // Update state with the recent chats
+        setMessages(updatedMessages);
+
+       
+
+        getChat();
+
+       setMessageText("");
+      
     } catch (error) {
       console.log("Error sending message:", error);
     }
   }
+   
+
+  const sendFile = async (e) => {
+    e.preventDefault();
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const token = localStorage.getItem("token");
+
+      console.log("selected file is : ", selectedFile);
+
+      if (selectedFile) {
+        const formData = new FormData(); // Create a new FormData object
+        formData.append("file", selectedFile, selectedFile.name); // Append the file with its name
+
+        const headers = {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        };
+
+        const sendFile = await axios.post(
+          "http://localhost:4000/chat/sendFile",
+          formData, // Pass the formData object as the request body
+          { headers }
+        );
+
+        console.log("File has been sent successfully!", sendFile.data);
+
+        setSelectedFile(null);
+        getChat();
+      }
+    } catch (err) {
+      console.log("Error while sending the file:", err);
+    }
+  };
+
+  const handleSend = (e) => {
+    if (selectedFile) {
+      sendFile(e);
+    } else {
+      messageSend(e)
+    }
+  };
+
+
 
   return (
-    <>
-      <div className="chat-header">Group Chat</div>
+    < >
+      <div className="chat-header">Common Group </div>
       
       <hr style={{ marginBottom: "1rem", marginTop: "0" }} />
+      <div style={{ maxHeight: "80vh", overflowY: "auto",scrollbarWidth:"none"}}>
       <div className="flex-grow-1 overflow-auto messages">
         {messages &&
           messages.map((message, index) => (
@@ -124,8 +172,11 @@ const Chat = () => {
               }`}
             >
               <p className="username">{message.userName}</p>
+            
+             { message.type==="text" && 
+             <div>
               <p>{message.message}</p>
-              <small className="timestamp">
+               <small className="timestamp">
                 {new Date(message.createdAt).toLocaleTimeString("en-GB", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -137,21 +188,119 @@ const Chat = () => {
                   month: "2-digit",
                   year: "numeric",
                 })}
-              </small>
+              </small></div>}
+              
+              {message.type && mediaTypes.image.includes(message.type) && (
+                    <Stack gap={2}>
+                    <img
+                      src={message.message}
+                      alt="Image"
+                      className="message-image"
+                      style={{
+                        maxWidth: "50%",
+                        maxHeight: "50%",
+                        objectFit: "contain",
+                      }}
+                    /> 
+                    <small className="timestamp">
+                {new Date(message.createdAt).toLocaleTimeString("en-GB", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
+                {", "}
+                {new Date(message.createdAt).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+              </small>   
+                    </Stack>
+                    
+                  )}
+
+                  {message.type && mediaTypes.video.includes(message.type) && (
+                    <Stack gap={2}>
+                    <video
+                      controls
+                      className="message-video"
+                      style={{ maxWidth: "50%" }}
+                    >
+                      <source src={message.message} type={message.type} />
+                      Your browser does not support the video tag.
+                    </video>
+                    <small className="timestamp">
+                    {new Date(message.createdAt).toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                    {", "}
+                    {new Date(message.createdAt).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </small>
+                  </Stack>
+                  )}
+
+                  {message.type && mediaTypes.audio.includes(message.type) && (
+                    <Stack gap={2}>
+                    <audio controls className="message-audio">
+                      <source src={message.message} type={message.type} />
+                      Your browser does not support the audio tag.
+                    </audio>
+                    <small className="timestamp">
+                    {new Date(message.createdAt).toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    })}
+                    {", "}
+                    {new Date(message.createdAt).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </small>
+                  </Stack>
+                  )}
+
             </div>
           ))}
       </div>
       <Form className="message-form">
+        <Button onClick={handleToggleMenu}> 
+        < AiOutlinePaperClip/>
+        </Button>
+        {isOpen && (
+                <Form.Control
+                  id="custom-file"
+                  type="file"
+                  label="Choose file"
+                  style={{ display: "block" }}
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  accept="image/*,audio/*,video/*,.pdf"
+                />
+              )}
         <Form.Control
           type="text"
           placeholder="Type your message..."
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
         />
-        <Button variant="primary" type="submit" onClick={messageSend}>
+        <Button variant="primary" type="submit" 
+        onClick={(e)=>handleSend(e)}
+        onKeyDown={(e)=>{
+          if(e.key==="Enter") {
+            handleSend(e);
+          }
+        }}>
           <FaPaperPlane />
         </Button>
       </Form>
+      </div>
     </>
   );
 };

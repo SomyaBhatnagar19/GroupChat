@@ -70,7 +70,7 @@ const AddAdminToGroup = () => {
         console.log('Data to modify: ', newMembersData);
         // handleClose();
         dispatch(addNewAdminToTheGroup(newMembersData));
-        // setShow(!show);
+        setShow(!show);
     }
 
 

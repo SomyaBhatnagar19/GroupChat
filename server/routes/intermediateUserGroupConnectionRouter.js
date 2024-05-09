@@ -5,7 +5,9 @@ const router = express.Router();
 const IntermediateUserGroupConnectController = require("../controller/intermeditateUserGroupConnectionController");
 
 router.get("/getMembers/:groupId", IntermediateUserGroupConnectController.getMembers);
+
 router.get("/getAdminDetails", IntermediateUserGroupConnectController.getAdminDetails);
+
 router.get(
   "/getAllAdminsToAdd/:groupId",
   IntermediateUserGroupConnectController.getAllAdminsToAdd
@@ -22,5 +24,9 @@ router.get(
   "/getAllNewMembers/:groupId",
   IntermediateUserGroupConnectController.getAllNewMembers
 );
+
+router.get("/getAllTheUsersInGroup/:groupId",IntermediateUserGroupConnectController.getAllTheUsersInGroup);
+
+router.post("/removeUserFromTheGroup",IntermediateUserGroupConnectController.removeUserFromTheGroup);
 
 module.exports = router;

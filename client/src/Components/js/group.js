@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Button } from "react-bootstrap";
-import {toggleMembersSelection, toggleAdminSelection, setGroupName, createGroup } from '../store/groupStore';
+import {toggleMembersSelection, setGroupName, createGroup } from '../store/groupStore';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllUsers } from "../store/userStore";
 
@@ -20,7 +20,9 @@ const Group = ({ show, onHide }) => {
 
 
   const id = JSON.parse(localStorage.getItem("userResData")).id;
-  const groupName = JSON.parse(localStorage.getItem("group")).groupName;
+
+  const groupName = useSelector((state) => state.groupStoreCreation.groupName);
+
   useEffect(() => {
     dispatch(fetchAllUsers());
   }, [dispatch]);
@@ -29,9 +31,7 @@ const Group = ({ show, onHide }) => {
     dispatch(toggleMembersSelection(userId));
   };
 
-  const handleAdminRadioChange = (userId) => {
-    dispatch(toggleAdminSelection(userId));
-  };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();

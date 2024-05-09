@@ -9,8 +9,8 @@ import {
   Modal,
   Button,
 } from "react-bootstrap";
-import { getAllNewMembersToAdd, getAllNewAdminsToAdd, addNewMembersToTheGroup } from "../store/groupStore";
-import { toggleMembersSelection, toggleAdminSelection } from "../store/groupStore";
+import { getAllNewMembersToAdd, addNewMembersToTheGroup } from "../store/groupStore";
+import { toggleMembersSelection} from "../store/groupStore";
 import { AiOutlinePlus } from "react-icons/ai";
 
 const AddMembersToGroup = () => {
@@ -24,9 +24,6 @@ const AddMembersToGroup = () => {
     (state) => state.groupStoreCreation.allNewMembers
   );
 
-  // const allNewAdmins = useSelector(
-  //   (state) => state.groupStoreCreation.allNewAdmins
-  // )
 
   const selectedMembers = useSelector(
     (state) => state.groupStoreCreation.selectedMembers
@@ -35,41 +32,24 @@ const AddMembersToGroup = () => {
   const handleClose = () => {
     setShow(!show);
   }
-  // const selectedAdmins = useSelector(
-  //   (state) => state.groupStoreCreation.selectedAdmins
-  // );
-
-
-    // console.log("All New Admins: ", allNewAdmins);
-  // const allNewAdmins = useSelector((state)=>state.groupStoreCreation.allNewAdmins);
-
+  
   useEffect(() => {
     dispatch(getAllNewMembersToAdd());
-
-    // dispatch(getAllNewAdminsToAdd());
   }, []);
 
 
-  // const handleMemberCheckboxChange = (userId) => {
-  //   dispatch(toggleMembersSelection(userId));
-  // };
 
-  // const handleAdminRadioChange = (userId) => {
-  //   dispatch(toggleAdminSelection(userId));
-  // };
 
   const addToGroupHandler = () => {
 
       const newMembersData = {
-          // admins : selectedAdmins,
           members : selectedMembers,
           groupId : groupId,
 
       }
       console.log('Data to modify: ', newMembersData);
-      // handleClose();
       dispatch(addNewMembersToTheGroup(newMembersData));
-      // setShow(!show);
+      setShow(!show);
   }
 
   return (
