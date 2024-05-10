@@ -77,7 +77,7 @@ const sendFile = async (req, res) => {
 
     let chatData = {
       message: data.Location,
-      global: false,
+      isShared: false,
       userId: req.user.id,
       groupId: req.body.groupId || null,
       userName: req.user.name,
@@ -85,12 +85,13 @@ const sendFile = async (req, res) => {
     };
 
     if (!req.body.groupId) {
-      chatData.global = true;
+      chatData.isShared = true;
     }
 
     const chat = await Chat.create(chatData);
 
     return res.status(200).json({ message: "success", chat: chat });
+    console.log("Send file data: ", chat);
   } catch (err) {
     console.log("Error occurred while inserting chat into db:", err);
     return res.status(400).json({ message: "failure", errMsg: err });
