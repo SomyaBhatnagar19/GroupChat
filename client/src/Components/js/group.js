@@ -43,6 +43,7 @@ const Group = ({ show, onHide }) => {
     } 
     dispatch(createGroup(groupData));
     onHide();
+    window.location.reload(); 
  };
 
   return (
