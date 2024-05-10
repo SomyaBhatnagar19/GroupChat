@@ -177,8 +177,9 @@ export const addUserToGroup = (groupId, userId) => async (dispatch) => {
       groupId,
       userId,
     });
-    dispatch(fetchMessages(groupId));
     alert("User added to group successfully!");
+    dispatch(fetchMessages(groupId));
+   
   } catch (error) {
     console.error("Error adding user to group:", error);
   }
@@ -190,8 +191,9 @@ export const makeMemberAdmin = (groupId, userId) => async (dispatch) => {
       groupId,
       userId,
     });
-    dispatch(fetchMessages(groupId)); // Fetch updated messages after making member admin
     alert("User has been made admin!");
+    dispatch(fetchMessages(groupId)); // Fetch updated messages after making member admin
+    
   } catch (error) {
     console.error("Error making member admin:", error);
   }
@@ -202,8 +204,9 @@ export const removeUserFromGroup = (groupId, userId) => async (dispatch) => {
     await axios.delete(
       `http://localhost:4000/group/removeUserFromGroup/${groupId}/${userId}`
     );
-    dispatch(fetchMessages(groupId)); // Fetch updated messages after removing user
     alert("User removed successfully!")
+    dispatch(fetchMessages(groupId)); // Fetch updated messages after removing user
+    
   } catch (error) {
     console.error("Error removing user from group:", error);
   }
@@ -270,7 +273,7 @@ export const addNewMembersToTheGroup = (newMembersData) => async (dispatch) => {
     const response = await axios.post("http://localhost:4000/connection/addNewUsersToUserGroups",{newMembersData},{headers});
   
     console.log("Group created successfully : ", response.data);
-  
+    alert("User removed successfully!")
   
   } catch (err) {
       
@@ -299,7 +302,7 @@ export const addNewMembersToTheGroup = (newMembersData) => async (dispatch) => {
       const response = await axios.post("http://localhost:4000/connection/addNewAdminToTheGroup",{newMembersData},{headers});
     
       console.log("Group created successfully : ", response.data);
-    
+      alert("User made admin successfully!")
     
     } catch (err) {
         
@@ -346,7 +349,7 @@ export const addNewMembersToTheGroup = (newMembersData) => async (dispatch) => {
           const response = await axios.post("http://localhost:4000/connection/removeUserFromTheGroup",{selectedUserDataFromGroup},{headers});
       
           console.log("Removed Members Successfully : ", response.data);
-      
+          alert("User removed successfully!")
         } catch(err) {
            console.log("Failed to Remove Member from the Group ",err);
         }
